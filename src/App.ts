@@ -11,6 +11,13 @@ export class App extends gfx.GfxApp
     private cylinder: gfx.Mesh3;
     private cameraControls: gfx.OrbitControls;
 
+    private cylinderStartPosition: gfx.Vector3;
+    private cylinderEndPosition: gfx.Vector3;
+    private cylinderStartColor: gfx.Color;
+    private cylinderEndColor: gfx.Color;
+    private lerpAlpha: number;
+    private lerpDirection: number;
+
     // --- Create the App class ---
     constructor()
     {
@@ -19,6 +26,13 @@ export class App extends gfx.GfxApp
 
         this.cameraControls = new gfx.OrbitControls(this.camera);
         this.cylinder = new gfx.Mesh3();
+
+        this.cylinderStartPosition = new gfx.Vector3(-4, 0, 0);
+        this.cylinderEndPosition = new gfx.Vector3(4, 0, 0);
+        this.cylinderStartColor = new gfx.Color(0, 0, 0);
+        this.cylinderEndColor = new gfx.Color(1, 1, 1);
+        this.lerpAlpha = 0.5;
+        this.lerpDirection = 1;
     }
 
 
@@ -66,7 +80,32 @@ export class App extends gfx.GfxApp
     // --- Update is called once each frame by the main graphics loop ---
     update(deltaTime: number): void 
     {
-       this.cameraControls.update(deltaTime);
+        // How much should alpha change per sec?
+        const lerpSpeed = 0.5;
+
+        this.lerpAlpha += lerpSpeed * deltaTime * this.lerpDirection;
+
+        // Reverse direction if we have gone too far
+        if(this.lerpAlpha > 1 || this.lerpAlpha < 0)
+        {
+            this.lerpDirection *= -1;
+        }
+
+        this.lerpAlpha = gfx.MathUtils.clamp(this.lerpAlpha, 0, 1);
+
+        this.cylinder.position.lerp(
+            this.cylinderStartPosition, 
+            this.cylinderEndPosition,
+            this.lerpAlpha
+        );
+
+        const cylinderColor = gfx.Color.lerp(
+            this.cylinderStartColor, 
+            this.cylinderEndColor,
+            this.lerpAlpha);
+        this.cylinder.material.setColor(cylinderColor);
+
+        this.cameraControls.update(deltaTime);
     }
 
     private createCylinderMesh(mesh: gfx.Mesh3, numSegments: number, height: number)
