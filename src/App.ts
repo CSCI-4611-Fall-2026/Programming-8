@@ -47,6 +47,7 @@ export class App extends gfx.GfxApp
         // Create a material for the cylinder that interacts with the lights in the scene
         const cylinderMaterial = new gfx.PhongMaterial();
         cylinderMaterial.diffuseColor = new gfx.Color(1, 1, 1);
+        cylinderMaterial.texture = new gfx.Texture("./campbells.png");
         this.cylinder.material = cylinderMaterial;
 
         // Create a cylinder mesh with 32 segments and a height of 2.5 units
@@ -73,6 +74,7 @@ export class App extends gfx.GfxApp
         // Create the vertices, normals, and indices for the cylinder mesh.
         const vertices: gfx.Vector3[] = [];
         const normals: gfx.Vector3[] = [];
+        const uvs: gfx.Vector2[] = [];
         const indices: number[] = [];
 
         // Calculate the angle increment for each segment of the cylinder.
@@ -90,6 +92,9 @@ export class App extends gfx.GfxApp
             // Create two normals that make up each column
             normals.push(new gfx.Vector3(Math.cos(angle), 0, Math.sin(angle)));
             normals.push(new gfx.Vector3(Math.cos(angle), 0, Math.sin(angle)));
+        
+            uvs.push(new gfx.Vector2((numSegments-i)/numSegments, 0));
+            uvs.push(new gfx.Vector2((numSegments-i)/numSegments, 1));
         }
 
         // Create the indices for the barrel of the cylinder.
@@ -103,6 +108,7 @@ export class App extends gfx.GfxApp
         const topCenter = vertices.length;
         vertices.push(new gfx.Vector3(0, height/2, 0));
         normals.push(new gfx.Vector3(0, 1, 0));
+        uvs.push(new gfx.Vector2(0, 0.01));
 
         // Create the top disc with upward-facing normals.
         const topStart = vertices.length;
@@ -112,6 +118,7 @@ export class App extends gfx.GfxApp
 
             vertices.push(new gfx.Vector3(Math.cos(angle), height/2, Math.sin(angle)));
             normals.push(new gfx.Vector3(0, 1, 0));
+            uvs.push(new gfx.Vector2(0, 0.01));
         }
 
         // Create the indices for the top disc.
@@ -124,6 +131,7 @@ export class App extends gfx.GfxApp
         const bottomCenter = vertices.length;
         vertices.push(new gfx.Vector3(0, -height/2, 0));
         normals.push(new gfx.Vector3(0, -1, 0));
+        uvs.push(new gfx.Vector2(0, 0.99));
 
         // Create the bottom disc with downward-facing normals.
         const bottomStart = vertices.length;
@@ -133,6 +141,7 @@ export class App extends gfx.GfxApp
 
             vertices.push(new gfx.Vector3(Math.cos(angle), -height/2, Math.sin(angle)));
             normals.push(new gfx.Vector3(0, -1, 0));
+            uvs.push(new gfx.Vector2(0, 0.99));
         }
 
         // Create the indices for the bottom disc.
@@ -146,5 +155,6 @@ export class App extends gfx.GfxApp
         mesh.setVertices(vertices);
         mesh.setNormals(normals);
         mesh.setIndices(indices);
+        mesh.setTextureCoordinates(uvs);
     }
 }
